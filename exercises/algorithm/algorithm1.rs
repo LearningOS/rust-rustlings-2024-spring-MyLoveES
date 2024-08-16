@@ -2,8 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
-
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
@@ -70,13 +68,42 @@ impl<T> LinkedList<T> {
         }
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+    where 
+        T: Ord,
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut merge_list = LinkedList::new();
+        let mut a_node = list_a.start;
+        let mut b_node = list_b.start;
+
+        while a_node.is_some() || b_node.is_some() {
+            match (a_node, b_node) {
+                (Some(a_ptr), Some(b_ptr)) => {
+                    let a_ref = unsafe{ a_ptr.as_ref() };
+                    let b_ref = unsafe{ b_ptr.as_ref() };
+                    if a_ref.val <= b_ref.val {
+                        merge_list.add(unsafe { std::ptr::read(&a_ref.val) });
+                        a_node = a_ref.next;
+                    } else {
+                        merge_list.add(unsafe { std::ptr::read(&b_ref.val) });
+                        b_node = b_ref.next;
+                    }
+                }
+                (Some(a_ptr), None) => {
+                    let a_ref = unsafe { a_ptr.as_ref() };
+                    merge_list.add(unsafe { std::ptr::read(&a_ref.val) });
+                    a_node = a_ref.next;
+                }
+                (None, Some(b_ptr)) => {
+                    let b_ref = unsafe { b_ptr.as_ref() };
+                    merge_list.add(unsafe { std::ptr::read(&b_ref.val) });
+                    b_node = b_ref.next;
+                }
+                (None, None) => {
+                    break;
+                }
+            }
         }
+        merge_list
 	}
 }
 
